@@ -5,30 +5,29 @@ from DataStructures import *
 
 def process_json(filepath):
     with open(filepath, 'r') as js_file:
-        route_data = json.load(js_file)
+        json_routes_data = json.load(js_file)
 
     doc = Document()
-    for record in route_data:
-        doc.add_object(id_object=record['idObject'])
-        o = doc.get_object(id_object=record['idObject'])
-
-        o.add_route(id_route=record['idPath'])
-        r = o.get_route(id_route=record['idPath'])
-        r.set_points(record['points'])
+    doc.split_routes(json_routes_data, multiprocessing=False)
 
     return doc
 
 
 if __name__ == "__main__":
     document = process_json('paths2.json')
-    all_routes = document.get_all_routes()
-    p1, p2, t1, t2 = (50, 380), (100, 400), 890, 905
+    print("Split input json file.")
 
-    for route in all_routes:
-        route.append(route[1].check_for_enter_to_area(p1, p2, t1, t2))
+    p1, p2, time_range = (90, 400), (100, 405), (800, 905)
+    document.set_criteria(time_range, p1, p2)
+    print("Set time range and rectangle to looking for.\n" + 50 * "-")
 
-    all_routes = [[r[0], r[1].id, r[2]] for r in all_routes if r[2] != (None, None)]
-    print(all_routes)
+    document.update_routes_with_entries_exists_info(multiprocessing=False)
+
+    print(50 * "-", "\nUpdate routes with entries and exists information.")
+
+    document.get_results()
+    print("Write all routes' entries and exits into results.txt.")
+
 
 
 
