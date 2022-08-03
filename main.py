@@ -1,34 +1,50 @@
+import os
+import shutil
 import json
+import sys
+import argparse
 
+from logger import log, timer_func
 from DataStructures import *
+from Constants import TMP_PATH
 
 
-def process_json(filepath):
-    with open(filepath, 'r') as js_file:
-        json_routes_data = json.load(js_file)
+@timer_func
+def clear_tmp():
+    if os.path.exists(TMP_PATH):
+        shutil.rmtree(TMP_PATH)
 
-    doc = Document()
-    doc.split_routes(json_routes_data, multiprocessing=False)
-
-    return doc
+    if not os.path.exists(TMP_PATH):
+        os.mkdir(TMP_PATH)
 
 
 if __name__ == "__main__":
-    document = process_json('paths2.json')
-    print("Split input json file.")
+    if len(sys.argv) < 8 or len(sys.argv) > 9:
+        print('\nUsage: \n  python main.py -[MD] input x1 y1 x2 y2 t1 t2')
+        print('\n Where: \n x1, y1, x2, y2 - two points corresponding to square area\n'
+              't1, t2 - time range.')
+        print('\nOptions:')
+        print('\nM - multiprocessing mode')
+        print('\nD - plot routes and save them as image file.')
+    else:
+        filepath = sys.argv[2]
+        plot_r = 'D' in sys.argv[1]
+        mp = 'M' in sys.argv[1]
+        p1, p2, time_range = (float(sys.argv[3]), float(sys.argv[4])), (float(sys.argv[5]), float(sys.argv[6])),\
+                             (float(sys.argv[7]), float(sys.argv[8]))  # (835, 940), (840, 950), (250, 350)
+        log(f"--- New document {filepath} --- \nMultiprocessing: {mp}")
 
-    p1, p2, time_range = (90, 400), (100, 405), (800, 905)
-    document.set_criteria(time_range, p1, p2)
-    print("Set time range and rectangle to looking for.\n" + 50 * "-")
+        clear_tmp()
 
-    document.update_routes_with_entries_exists_info(multiprocessing=False)
+        with open(filepath, 'r') as js_file:
+            json_data = json.load(js_file)
 
-    print(50 * "-", "\nUpdate routes with entries and exists information.")
+        document = Document(filepath)
+        document.split_input_json_data(json_data, multiprocessing=mp)
+        document.set_criteria(time_range, p1, p2)
+        document.update_routes_with_entries_exists_info(multiprocessing=mp)
+        document.get_results(multiprocessing=mp)
 
-    document.get_results()
-    print("Write all routes' entries and exits into results.txt.")
-
-
-
-
+        if plot_r:
+            document.plot_routes()
 
