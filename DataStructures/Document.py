@@ -19,7 +19,7 @@ class Document:
         self.p1 = None
         self.p2 = None
 
-        base_file_name = filepath.split('/')[-1].rstrip('.json')
+        base_file_name = filepath.split('/')[-1].split('\\')[-1].rstrip('.json')
         self.doc_path = os.path.join(TMP_PATH, base_file_name)
         self.split_js_path = os.path.join(self.doc_path, SPLIT_JSONS)
         self.result_path = os.path.join(self.doc_path, RESULTS_PATH)

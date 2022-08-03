@@ -2,7 +2,6 @@ import os
 import shutil
 import json
 import sys
-import argparse
 
 from logger import log, timer_func
 from DataStructures import *

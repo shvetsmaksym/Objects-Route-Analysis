@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+   <body>
+      <form action = "http://localhost:5000/uploader" method = "POST"
+         enctype = "multipart/form-data">
+         <input type = "file" name = "json_file"/>
+         <input type = "submit" value="Submit"/>
+      </form>
+      <p>{{ filepath }}</p>
+
+      <h2>Parameters</h2>
+      <table border = 1>
+         {% for key, value in params.items() %}
+            <tr>
+               <th width="50"> {{ key }} </th>
+               <td width="80" align="right"> {{ value }} </td>
+            </tr>
+         {% endfor %}
+      </table>
+      <form action = "http://localhost:5000/set_params" method = "POST"
+            enctype = "multipart/form-data">
+      <input type="submit" name="set_parameters" value="Set Parameters"/><br>
+      </form>
+
+      <h2>Other Options</h2>
+      <form action = "http://localhost:5000/get_results" method = "POST"
+            enctype = "multipart/form-data">
+      <input type="checkbox" name="multiprocessing"/>Use multiprocessing?<br>
+      <input type="checkbox" name="plot_routes"/>Plot routes?<br>
+      <br>
+      <input type = "submit" value="Process JSON File"/>
+      </form>
+   </body>
+</html>
