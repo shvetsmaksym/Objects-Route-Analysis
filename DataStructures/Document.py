@@ -134,7 +134,7 @@ class Document:
                 with open(path, 'r') as file:
                     route_data = json.load(file)
                 if 'EntriesExits' in route_data:
-                    res = f"object: {route_data['idObject']}, path: {route_data['idPath']}," \
+                    res = f"object {route_data['idObject']}, path {route_data['idPath']}," \
                           f" crossing area times: {route_data['EntriesExits']}"
 
                     with open(self.result_path, 'a') as f:

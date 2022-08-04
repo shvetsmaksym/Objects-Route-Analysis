@@ -1,15 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
    <body>
-      <form action = "http://localhost:5000/uploader" method = "POST"
-         enctype = "multipart/form-data">
-         <input type = "file" name = "json_file"/>
-         <input type = "submit" value="Submit"/>
-      </form>
-      <p>{{ filepath }}</p>
+
+      <table border = 1>
+         <tr>
+            <th>Filepath</th>
+            <th> {{ filepath }} </th>
+            <th>
+               <form action = "http://localhost:5000/uploader" method = "GET"
+                  enctype = "multipart/form-data">
+               <input type = "submit" value="Choose JSON File"/>
+               </form>
+            </th>
 
       <h2>Parameters</h2>
-      <table border = 1>
          {% for key, value in params.items() %}
             <tr>
                <th width="50"> {{ key }} </th>
@@ -17,7 +21,7 @@
             </tr>
          {% endfor %}
       </table>
-      <form action = "http://localhost:5000/set_params" method = "POST"
+      <form action = "http://localhost:5000/set_params" method = "GET"
             enctype = "multipart/form-data">
       <input type="submit" name="set_parameters" value="Set Parameters"/><br>
       </form>
