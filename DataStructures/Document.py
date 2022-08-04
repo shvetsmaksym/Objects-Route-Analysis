@@ -19,7 +19,7 @@ class Document:
         self.p1 = None
         self.p2 = None
 
-        base_file_name = filepath.split('/')[-1].rstrip('.json')
+        base_file_name = filepath.split('/')[-1].split('\\')[-1].rstrip('.json')
         self.doc_path = os.path.join(TMP_PATH, base_file_name)
         self.split_js_path = os.path.join(self.doc_path, SPLIT_JSONS)
         self.result_path = os.path.join(self.doc_path, RESULTS_PATH)
@@ -134,7 +134,7 @@ class Document:
                 with open(path, 'r') as file:
                     route_data = json.load(file)
                 if 'EntriesExits' in route_data:
-                    res = f"object: {route_data['idObject']}, path: {route_data['idPath']}," \
+                    res = f"object {route_data['idObject']}, path {route_data['idPath']}," \
                           f" crossing area times: {route_data['EntriesExits']}"
 
                     with open(self.result_path, 'a') as f:

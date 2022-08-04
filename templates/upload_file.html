@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<body>
+
+<a href="http://localhost:5000/">Go back</a>
+<br><br>
+
+<form action = "http://localhost:5000/uploader" method = "POST"
+  enctype = "multipart/form-data">
+  <input type="file" name="json_file" value="Choose JSON File"/>
+  <input type="submit" value="Submit JSON File"/>
+</form>
+
+<br><p>Chosen file: {{ filepath }}</p>
+
+
+</body>
+</html>
