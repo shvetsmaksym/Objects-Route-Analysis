@@ -24,8 +24,12 @@ class Document:
         self.split_js_path = os.path.join(self.doc_path, SPLIT_JSONS)
         self.result_path = os.path.join(self.doc_path, RESULTS_PATH)
         self.plot_path = os.path.join(self.doc_path, PLOT_PATH)
+
         if not os.path.exists(self.doc_path):
             os.mkdir(self.doc_path)
+        if RESULTS_PATH not in os.listdir(self.doc_path):
+            with open(self.result_path, 'a') as _:
+                pass
 
     def set_criteria(self, time_range, p1, p2):
         """

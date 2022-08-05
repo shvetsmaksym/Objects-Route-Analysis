@@ -14,7 +14,8 @@ plot_routes = False
 
 @app.route('/')
 def main():
-    return render_template('main.html', filepath=filepath, params=params)
+    filename = os.path.basename(filepath) if filepath else None
+    return render_template('main.html', filepath=filename, params=params)
 
 
 @app.route('/uploader', methods=['GET', 'POST'])
@@ -32,7 +33,9 @@ def set_parameters():
     global params
     if request.method == 'POST':
         params.update({k: v for k, v in request.form.items() if k in ['x1', 'y1', 'x2', 'y2', 't1', 't2']})
-    return render_template('set_params.html')
+    return render_template('set_params.html', x1=params['x1'], y1=params['y1'],
+                           x2=params['x2'], y2=params['y2'],
+                           t1=params['t1'], t2=params['t2'])
 
 
 @app.route('/get_results', methods=['GET', 'POST'])
@@ -40,9 +43,8 @@ def get_results():
     global filepath, params, use_multiprocessing, plot_routes
     if request.method == 'POST':
         use_multiprocessing = 'multiprocessing' in request.form.keys() and request.form['multiprocessing'] == 'on'
-        plot_routes = 'plot_routes' in request.form.keys() and request.form['plot_routes'] == 'on'
         doc = process_data(filepath, params, use_multiprocessing, plot_routes)
-        with open(doc.result_path) as res_file:
+        with open(doc.result_path, 'r') as res_file:
             res = res_file.read()
         return render_template('get_results.html', result=res)
 

@@ -40,7 +40,7 @@ def process_data(filepath, params, use_multiprocessing, plot_routes):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 8 or len(sys.argv) > 9:
+    if len(sys.argv) != 9:
         print('\nUsage: \n  python ProcessDocument.py -[MD] input x1 y1 x2 y2 t1 t2')
         print('\n Where: \n x1, y1, x2, y2 - two points corresponding to square area\n'
               't1, t2 - time range.')
