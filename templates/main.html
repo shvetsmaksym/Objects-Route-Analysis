@@ -1,38 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
-   <body>
 
-      <table border = 1>
-         <tr>
-            <th>Filepath</th>
-            <th> {{ filepath }} </th>
-            <th>
-               <form action = "http://localhost:5000/uploader" method = "GET"
-                  enctype = "multipart/form-data">
-               <input type = "submit" value="Choose JSON File"/>
-               </form>
-            </th>
+<head>
+   <title>My HTML Document</title>
+   <link rel="stylesheet" href="{{url_for('.static', filename='css/style.css')}}">
+</head>
 
-      <h2>Parameters</h2>
+<body>
+   <div class="header">
+      <h1>Application for your routes analysis</h1>
+   </div>
+   <div class="MainApp">
+      <div class="LeftSide">
+         <input type="button" class="NavL" onclick="location.href='http://localhost:5000/uploader'" value="Choose JSON"/><br>
+         <input type="button" class="NavL" onclick="location.href='http://localhost:5000/list_routes'" value="List routes"/>
+         <input type="button" class="NavL" onclick="location.href='http://localhost:5000/set_params'" value="Set Parameters"/>
+         <form action = "http://localhost:5000/get_results" method = "POST"
+               enctype = "multipart/form-data">
+            <input type = "submit" class="NavL" value="Process JSON File"/>
+         </form>
+      </div>
+      <div class="MainContent">
+         <table border=1>
+            <tr>
+               <th>Filename</th>
+               <th> {{ filepath }} </th>
+            </tr>
          {% for key, value in params.items() %}
             <tr>
                <th width="50"> {{ key }} </th>
-               <td width="80" align="right"> {{ value }} </td>
+               <th width="80" align="right"> {{ value }} </th>
             </tr>
          {% endfor %}
-      </table>
-      <form action = "http://localhost:5000/set_params" method = "GET"
-            enctype = "multipart/form-data">
-      <input type="submit" name="set_parameters" value="Set Parameters"/><br>
-      </form>
+         </table>
+         <input type="checkbox" name="multiprocessing"/>Use multiprocessing?<br>
+      </div>
+   </div>
+</body>
 
-      <h2>Other Options</h2>
-      <form action = "http://localhost:5000/get_results" method = "POST"
-            enctype = "multipart/form-data">
-      <input type="checkbox" name="multiprocessing"/>Use multiprocessing?<br>
-      <input type="checkbox" name="plot_routes"/>Plot routes?<br>
-      <br>
-      <input type = "submit" value="Process JSON File"/>
-      </form>
-   </body>
 </html>

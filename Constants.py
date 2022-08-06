@@ -1,4 +1,5 @@
 TMP_PATH = 'temp'
 SPLIT_JSONS = 'split_jsons'
+MAP_JSONS_PATHS = 'map_jsons_path.csv'
 RESULTS_PATH = 'result.txt'
 PLOT_PATH = 'routes.png'
