@@ -1,34 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-<link rel="stylesheet" href="{{url_for('.static', filename='css/style.css')}}">
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{url_for('.static', filename='css/style.css')}}">
+    <title>List routes</title>
 </head>
-
 <body>
     <div class="header">
             <h1>Application for your routes analysis</h1>
       </div>
       <div class="MainApp">
         <div class="LeftSide">
-           <input type="button" class="NavL" onclick="location.href='http://localhost:5000/'" value="Go back"/>
-           <input type="button" class="NavL" onclick="location.href='http://localhost:5000/uploader'" value="Choose JSON"/>
+           <input type="button" class="NavL" onclick="location.href='http://localhost:5000/'" value="Go back"/><br>
+           <input type="button" class="NavL" onclick="location.href='http://localhost:5000/uploader'" value="Choose JSON"/><br>
             <input type="button" class="NavL" onclick="location.href='http://localhost:5000/list_routes'" value="List routes"/>
            <input type="button" class="NavL" onclick="location.href='http://localhost:5000/set_params'" value="Set Parameters"/>
         </div>
       </div>
       <div class="MainContent">
-        <h2>RESULTS</h2>
-          <table>
-              {% for line in result %}
-                <tr>
+        <table border=1>
+            {% for line in result %}
+            <tr>
                 {% for el in line %}
                     <th>{{ el }}</th>
                 {% endfor %}
-                </tr>
+            </tr>
             {% endfor %}
-          </table>
-
+        </table>
       </div>
 </body>
 </html>

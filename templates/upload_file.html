@@ -1,23 +1,29 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns="http://www.w3.org/1999/html">
 
 <head>
-<link rel="stylesheet" href="{{url_for('.static', filename='templates/style.css')}}">
+<link rel="stylesheet" href="{{url_for('.static', filename='css/style.css')}}">
 </head>
 
 <body>
-
-<a href="http://localhost:5000/">Go back</a>
-<br><br>
-
-<form action = "http://localhost:5000/uploader" method = "POST"
-  enctype = "multipart/form-data">
-  <input type="file" name="json_file" value="Choose JSON File"/>
-  <input type="submit" value="Submit JSON File"/>
-</form>
-
-<br><p>Chosen file: {{ filepath }}</p>
-
-
+  <div class="header">
+        <h1>Application for your routes analysis</h1>
+  </div>
+  <div class="MainApp">
+    <div class="LeftSide">
+       <input type="button" class="NavL" onclick="location.href='http://localhost:5000/'" value="Go back"/>
+       <input type="button" class="NavL" onclick="location.href='http://localhost:5000/uploader'" value="Choose JSON"/>
+        <input type="button" class="NavL" onclick="location.href='http://localhost:5000/list_routes'" value="List routes"/>
+       <input type="button" class="NavL" onclick="location.href='http://localhost:5000/set_params'" value="Set Parameters"/>
+    </div>
+    <div class="MainContent">
+      <form action = "http://localhost:5000/uploader" method = "POST"
+        enctype = "multipart/form-data">
+        <input type="file" name="json_file" value="Choose JSON File"/>
+        <input type="submit" value="Submit JSON File"/>
+      </form>
+      <br><p>Chosen file: {{ filepath }}</p>
+    </div>
+  </div>
 </body>
 </html>

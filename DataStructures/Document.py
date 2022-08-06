@@ -1,6 +1,8 @@
 import multiprocessing as mp
 import os
+import re
 import json
+import csv
 import pandas as pd
 import numpy as np
 from random import random
@@ -8,20 +10,22 @@ from itertools import combinations
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 
-from logger import timer_func
+from logger import timer_func, log
 from Constants import *
 
 
 class Document:
 
     def __init__(self, filepath=None):
+        self.filepath = filepath
         self.time_range = None
         self.p1 = None
         self.p2 = None
 
-        base_file_name = filepath.split('/')[-1].split('\\')[-1].rstrip('.json')
+        base_file_name = os.path.basename(filepath).rstrip('.json')
         self.doc_path = os.path.join(TMP_PATH, base_file_name)
         self.split_js_path = os.path.join(self.doc_path, SPLIT_JSONS)
+        self.map_jsons_path = os.path.join(self.doc_path, MAP_JSONS_PATHS)
         self.result_path = os.path.join(self.doc_path, RESULTS_PATH)
         self.plot_path = os.path.join(self.doc_path, PLOT_PATH)
 
@@ -30,6 +34,8 @@ class Document:
         if RESULTS_PATH not in os.listdir(self.doc_path):
             with open(self.result_path, 'a') as _:
                 pass
+
+        log(f"--- New document {self.doc_path}")
 
     def set_criteria(self, time_range, p1, p2):
         """
@@ -55,14 +61,20 @@ class Document:
 
         if multiprocessing:
             with mp.Pool(processes=mp.cpu_count()) as p:
-                  p.map(self.save_to_json, json_data)
+                p.map(self.save_to_json, json_data)
         else:
             for record in tqdm(json_data):
                 self.save_to_json(record)
 
+        # TODO: try to implement processes for below block of code.
+        with open(self.map_jsons_path, 'w', newline="") as csv_file:
+            csv_writer = csv.writer(csv_file, delimiter=";")
+            for file in os.listdir(self.split_js_path):
+                csv_writer.writerow(re.findall("\d+", file) + [file])
+
     def save_to_json(self, record):
         """Save one route to a new json file."""
-        file_path = os.path.join(self.split_js_path, f"Object_{record['idObject']}_path_{record['idPath']}.json")
+        file_path = os.path.join(self.split_js_path, f"Obj_{record['idObject']}_path_{record['idPath']}.json")
         with open(file_path, 'w') as file:
             json_formatted = json.dumps(record, ensure_ascii=True)
             file.write(json_formatted)
