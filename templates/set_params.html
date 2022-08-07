@@ -53,5 +53,71 @@
         <input type="submit" name="submit_params" value="Submit"/>
     </form>
   </div>
+  <div class="RightSide">
+     <canvas id="drawContainer" width="680" height="520" style="border: 1px solid #333"></canvas>
+     <script>
+      // Below code is the direct result of performing "Ctrl+C - Ctrl-V" operation from:
+      // https://prodevhub.com/2019/12/12/understanding-canvas-draw-a-line-in-canvas-using-mouse-and-touch-events-in-javascript/
+        const canvasEle = document.getElementById('drawContainer');
+        const context = canvasEle.getContext('2d');
+        let startPosition = {x: 0, y: 0};
+        let lineCoordinates = {x: 0, y: 0};
+        let isDrawStart = false;
+        var img = new Image();
+
+        img.onload = function() {
+            context.drawImage(img, 20,20);
+        }
+        img.src = "static/routes.png";
+
+        const getClientOffset = (event) => {
+            const {pageX, pageY} = event.touches ? event.touches[0] : event;
+            const x = pageX - canvasEle.offsetLeft;
+            const y = pageY - canvasEle.offsetTop;
+
+            return {
+               x,
+               y
+            }
+        }
+
+        const drawLine = () => {
+           context.beginPath();
+           context.moveTo(startPosition.x, startPosition.y);
+           context.lineTo(lineCoordinates.x, lineCoordinates.y);
+           context.stroke();
+        }
+
+        const mouseDownListener = (event) => {
+           startPosition = getClientOffset(event);
+           isDrawStart = true;
+        }
+
+        const mouseMoveListener = (event) => {
+          if(!isDrawStart) return;
+
+          lineCoordinates = getClientOffset(event);
+          clearCanvas();
+          drawLine();
+        }
+
+        const mouseupListener = (event) => {
+          isDrawStart = false;
+        }
+
+        const clearCanvas = () => {
+           context.clearRect(0, 0, canvasEle.width, canvasEle.height);
+           img.onload();
+        }
+
+        canvasEle.addEventListener('mousedown', mouseDownListener);
+        canvasEle.addEventListener('mousemove', mouseMoveListener);
+        canvasEle.addEventListener('mouseup', mouseupListener);
+
+        canvasEle.addEventListener('touchstart', mouseDownListener);
+        canvasEle.addEventListener('touchmove', mouseMoveListener);
+        canvasEle.addEventListener('touchend', mouseupListener);
+     </script>
+  </div>
 </body>
 </html>

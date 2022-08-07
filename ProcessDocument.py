@@ -48,4 +48,5 @@ if __name__ == "__main__":
                   't1': sys.argv[7], 't2': sys.argv[8]
                   }  # (835, 940), (840, 950), (250, 350)
 
-        process_data(Params, Use_multiprocessing, filepath=Filepath)
+        doc = process_data(Params, Use_multiprocessing, filepath=Filepath)
+        # doc.plot_routes()
