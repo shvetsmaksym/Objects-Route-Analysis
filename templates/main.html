@@ -12,7 +12,8 @@
    </div>
    <div class="MainApp">
       <div class="LeftSide">
-         <input type="button" class="NavL" onclick="location.href='http://localhost:5000/uploader'" value="Choose JSON"/><br>
+         <input type="button" class="NavL" onclick="location.href='http://localhost:5000/'" disabled value="Main menu"/>
+         <input type="button" class="NavL" onclick="location.href='http://localhost:5000/uploader'" value="Choose JSON"/>
          <input type="button" class="NavL" onclick="location.href='http://localhost:5000/list_routes'" value="List routes"/>
          <input type="button" class="NavL" onclick="location.href='http://localhost:5000/set_params'" value="Set Parameters"/>
          <form action = "http://localhost:5000/get_results" method = "POST"
@@ -32,8 +33,11 @@
                <th width="80" align="right"> {{ value }} </th>
             </tr>
          {% endfor %}
+            <tr>
+               <th>Multiprocessing</th>
+               <th>{{ proc }}</th>
+            </tr>
          </table>
-         <input type="checkbox" name="multiprocessing"/>Use multiprocessing?<br>
       </div>
    </div>
 </body>

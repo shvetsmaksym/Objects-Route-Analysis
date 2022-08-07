@@ -11,10 +11,14 @@
       </div>
       <div class="MainApp">
         <div class="LeftSide">
-           <input type="button" class="NavL" onclick="location.href='http://localhost:5000/'" value="Go back"/><br>
-           <input type="button" class="NavL" onclick="location.href='http://localhost:5000/uploader'" value="Choose JSON"/><br>
+           <input type="button" class="NavL" onclick="location.href='http://localhost:5000/'" value="Main menu"/>
+           <input type="button" class="NavL" onclick="location.href='http://localhost:5000/uploader'" value="Choose JSON"/>
             <input type="button" class="NavL" onclick="location.href='http://localhost:5000/list_routes'" value="List routes"/>
            <input type="button" class="NavL" onclick="location.href='http://localhost:5000/set_params'" value="Set Parameters"/>
+            <form action = "http://localhost:5000/get_results" method = "POST"
+                   enctype = "multipart/form-data">
+                <input type = "submit" class="NavL" value="Process JSON File"/>
+            </form>
         </div>
       </div>
       <div class="MainContent">

@@ -13,10 +13,14 @@
   </div>
   <div class="MainApp">
     <div class="LeftSide">
-       <input type="button" class="NavL" onclick="location.href='http://localhost:5000/'" value="Go back"/>
+       <input type="button" class="NavL" onclick="location.href='http://localhost:5000/'" value="Main menu"/>
        <input type="button" class="NavL" onclick="location.href='http://localhost:5000/uploader'" value="Choose JSON"/>
         <input type="button" class="NavL" onclick="location.href='http://localhost:5000/list_routes'" value="List routes"/>
        <input type="button" class="NavL" onclick="location.href='http://localhost:5000/set_params'" value="Set Parameters"/>
+        <form action = "http://localhost:5000/get_results" method = "POST"
+                   enctype = "multipart/form-data">
+                <input type = "submit" class="NavL" value="Process JSON File"/>
+        </form>
     </div>
   </div>
   <div class="MainContent">
@@ -24,9 +28,9 @@
                 enctype = "multipart/form-data">
         <table border=1>
             <tr>
-                <th width="50">x1</th>
+                <th width=50>x1</th>
                 <th><input type="number" step="0.01" name="x1" value="{{ x1 }}"/></th>
-                <th width="50">y1</th>
+                <th width=50>y1</th>
                 <th><input type="number" step="0.01" name="y1" value="{{ y1 }}"/></th>
             </tr>
             <tr>
@@ -41,8 +45,11 @@
                 <th>t2</th>
                 <th><input type="number" step="0.01" name="t2" value="{{ t2 }}" /></th>
             </tr>
+            <tr>
+                <td colspan="2">Use multiprocessing?</td>
+                <td colspan="2"><input id="check" type="checkbox" align="center" name="multiprocessing"/></td>
+            </tr>
         </table>
-
         <input type="submit" name="submit_params" value="Submit"/>
     </form>
   </div>

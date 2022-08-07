@@ -1,12 +1,18 @@
-body {
-
-    background-color: #ffecb3;
-}
+body {background-color: #ffecb3;}
 
 h1 {
   color: #ffbf00;
   text-shadow: 1px 1px 2px black, 0 0 25px #b38600, 0 0 5px white;
 }
+
+th, td {
+
+    padding: 5px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+tr:hover {background-color: #ffd24d;}
 
 .LeftSide {
 

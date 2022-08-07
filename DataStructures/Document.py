@@ -22,6 +22,17 @@ class Document:
         self.p1 = None
         self.p2 = None
 
+        # The usage of below four booleans makes code more complicated, but it does a great job when it comes to
+        # performance (while using WebApp; for ProcessDocument.py it makes no difference):
+        # 1. Don't split json if we only changed parameters and want to processed document again.
+        # 2. Don't process document if we just went to main menu and then want to check the results again.
+        # 3. Don't go through all split jsons to remove entries/exits data if we know that it's never been added
+        # or it's been removed from them.
+        self.obtained_routes = False  # tells us if json is already split.
+        self.is_ee_data = False  # tells us if split jsons contain entries/exits data at that moment.
+        self.updated_ee_data = False  # tells us if entries/exits data in split jsons is updated.
+        self.processed_doc = False  # tells us if document is already processed and result.txt is created.
+
         base_file_name = os.path.basename(filepath).rstrip('.json')
         self.doc_path = os.path.join(TMP_PATH, base_file_name)
         self.split_js_path = os.path.join(self.doc_path, SPLIT_JSONS)
@@ -31,10 +42,8 @@ class Document:
 
         if not os.path.exists(self.doc_path):
             os.mkdir(self.doc_path)
-        if RESULTS_PATH not in os.listdir(self.doc_path):
-            with open(self.result_path, 'a') as _:
-                pass
-
+        if not os.path.exists(self.split_js_path):
+            os.mkdir(self.split_js_path)
         log(f"--- New document {self.doc_path}")
 
     def set_criteria(self, time_range, p1, p2):
@@ -44,33 +53,41 @@ class Document:
         :param p1: (x1, y1) - bottom left point of rectangle area
         :param p2: (x2, y2) - top right point of rectangle area
         """
-        self.time_range = time_range
-        self.p1 = p1
-        self.p2 = p2
+        if [self.time_range, self.p1, self.p2] != [time_range, p1, p2]:
+            self.time_range = time_range
+            self.p1 = p1
+            self.p2 = p2
+
+            self.processed_doc = False
+            self.updated_ee_data = False
 
     # ---- NEXT TWO METHODS SPLIT INPUT JSON FILE INTO SMALLER JSON FILES FOR EACH ROUTE ----
     @timer_func
-    def split_input_json_data(self, json_data, multiprocessing=False):
+    def split_input_json_data(self, use_multiprocessing=False):
         """
         Method splits input json file into smaller json files each corresponding to exact one route.
         Saves split files into temp folder.
-        :param multiprocessing: True / False
+        :param use_multiprocessing: True / False
         """
-        if not os.path.exists(self.split_js_path):
-            os.mkdir(self.split_js_path)
+        if not self.obtained_routes:
+            with open(self.filepath, 'r') as js_file:
+                json_data = json.load(js_file)
 
-        if multiprocessing:
-            with mp.Pool(processes=mp.cpu_count()) as p:
-                p.map(self.save_to_json, json_data)
-        else:
-            for record in tqdm(json_data):
-                self.save_to_json(record)
+            if use_multiprocessing:
+                with mp.Pool(processes=mp.cpu_count()) as p:
+                    p.map(self.save_to_json, json_data)
+            else:
+                for record in tqdm(json_data):
+                    self.save_to_json(record)
 
-        # TODO: try to implement processes for below block of code.
-        with open(self.map_jsons_path, 'w', newline="") as csv_file:
-            csv_writer = csv.writer(csv_file, delimiter=";")
-            for file in os.listdir(self.split_js_path):
-                csv_writer.writerow(re.findall("\d+", file) + [file])
+            # TODO: try to implement processes for below block of code.
+            with open(self.map_jsons_path, 'w', newline="") as csv_file:
+                csv_writer = csv.writer(csv_file, delimiter=";")
+                csv_writer.writerow(["ID Object", "ID Path", "Filename"])
+                for file in os.listdir(self.split_js_path):
+                    csv_writer.writerow(re.findall("\d+", file) + [file])
+
+            self.obtained_routes = True
 
     def save_to_json(self, record):
         """Save one route to a new json file."""
@@ -79,22 +96,61 @@ class Document:
             json_formatted = json.dumps(record, ensure_ascii=True)
             file.write(json_formatted)
 
-    # ---- NEXT TWO METHODS CHECK EACH ROUTE FOR PASSING THE RECTANGLE AREA IN THE GIVEN TIME RANGE AND UPDATE ----
-    # ---- JSON FILES CORRESPONDING TO EACH ROUTE WITH THIS INFORMATION ----
+    # -------------------------------
+    def update_jsons_and_get_results(self, use_multiprocessing=False):
+        if self.obtained_routes and not self.processed_doc:
+            with open(self.result_path, 'w') as f:
+                f.write("Id Object;Id Path;Entries and exits\n")
+            if self.is_ee_data:
+                self.clear_routes_from_entries_exists_data(use_multiprocessing=use_multiprocessing)
+            self.update_routes_with_entries_exists_info(use_multiprocessing=use_multiprocessing)
+            self.get_results(use_multiprocessing=use_multiprocessing)
+            self.processed_doc = True
+
+    # ---- NEXT TWO METHODS CHECK EVERY ROUTE FOR PASSING THE RECTANGLE AREA IN THE GIVEN TIME RANGE
+    # ---- AND UPDATE EVERY JSON FILE WITH THIS INFORMATION ----
     @timer_func
-    def update_routes_with_entries_exists_info(self, multiprocessing=False):
+    def clear_routes_from_entries_exists_data(self, use_multiprocessing=False):
+        """
+        Method goes through each route and looking for enters and exits from the rectangle area and remove it.
+        :param use_multiprocessing: True / False
+        """
+        paths = iter([os.path.join(self.split_js_path, fname) for fname in os.listdir(self.split_js_path)])
+        if use_multiprocessing:
+            with mp.Pool(processes=mp.cpu_count()) as p:
+                p.map(Document.remove_entries_exits_data_from_json, paths)
+        else:
+            for p in tqdm(paths):
+                Document.remove_entries_exits_data_from_json(p)
+
+    @staticmethod
+    def remove_entries_exits_data_from_json(json_path):
+        with open(json_path, 'r') as file:
+            route_data = json.load(file)
+        if "EntriesExits" in route_data.keys():
+            del route_data["EntriesExits"]
+            json_formatted = json.dumps(route_data, ensure_ascii=True)
+            with open(json_path, 'w') as file:
+                file.write(json_formatted)
+
+    @timer_func
+    def update_routes_with_entries_exists_info(self, use_multiprocessing=False):
         """
         Method process each route to find enters and exits from the rectangle area and update json files corresponding
         to each route with this information.
-        :param multiprocessing: True / False
+        :param use_multiprocessing: True / False
         """
-        paths = iter([os.path.join(self.split_js_path, fname) for fname in os.listdir(self.split_js_path)])
-        if multiprocessing:
-            with mp.Pool(processes=mp.cpu_count()) as p:
-                p.map(self.check_for_entries_and_exits, paths)
-        else:
-            for p in tqdm(paths):
-                self.check_for_entries_and_exits(p)
+        if not self.updated_ee_data:
+            paths = iter([os.path.join(self.split_js_path, fname) for fname in os.listdir(self.split_js_path)])
+            if use_multiprocessing:
+                with mp.Pool(processes=mp.cpu_count()) as p:
+                    p.map(self.check_for_entries_and_exits, paths)
+            else:
+                for p in tqdm(paths):
+                    self.check_for_entries_and_exits(p)
+
+            self.is_ee_data = True
+            self.updated_ee_data = True
 
     def check_for_entries_and_exits(self, json_path):
         """
@@ -138,20 +194,19 @@ class Document:
     # ---- NEXT THREE METHODS COLLECT INFORMATION ABOUT PASSING RECTANGLE AREA IN GIVEN TIME RANGE BY EVERY OBJECT ----
     # ---- AND EVERY ROUTE ----
     @timer_func
-    def get_results(self, multiprocessing=False):
+    def get_results(self, use_multiprocessing=False):
         """
         Method looks for every json in split jsons, collect information about entries and exits, and write it to self.result_path
-        :param multiprocessing: True / False
+        :param use_multiprocessing: True / False
         """
         paths = iter([os.path.join(self.split_js_path, fname) for fname in os.listdir(self.split_js_path)])
 
-        if not multiprocessing:
+        if not use_multiprocessing:
             for path in tqdm(paths):
                 with open(path, 'r') as file:
                     route_data = json.load(file)
                 if 'EntriesExits' in route_data:
-                    res = f"object {route_data['idObject']}, path {route_data['idPath']}," \
-                          f" crossing area times: {route_data['EntriesExits']}"
+                    res = f"{route_data['idObject']};{route_data['idPath']};{route_data['EntriesExits']}"
 
                     with open(self.result_path, 'a') as f:
                         f.write(str(res) + '\n')
@@ -191,8 +246,7 @@ class Document:
             route_data = json.load(file)
 
         if 'EntriesExits' in route_data:
-            res = f"object: {route_data['idObject']}, path: {route_data['idPath']}," \
-                          f" crossing area times: {route_data['EntriesExits']}"
+            res = f"{route_data['idObject']};{route_data['idPath']}; {route_data['EntriesExits']}"
             q.put(res)
             return res
 
@@ -201,7 +255,7 @@ class Document:
         Method listens messages from the queue and write them into self.result_path file.
         :param q: queue
         """
-        with open(self.result_path, 'w') as f:
+        with open(self.result_path, 'a') as f:
             while 1:
                 m = q.get()
                 if m == 'kill':

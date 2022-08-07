@@ -18,22 +18,17 @@ def clear_tmp():
 
 
 def process_data(params, use_multiprocessing, filepath=None, document=None):
-    log(f"\nMultiprocessing: {use_multiprocessing}")
     p1 = (float(params['x1']), float(params['y1']))
     p2 = (float(params['x2']), float(params['y2']))
     time_range = (float(params['t1']), float(params['t2']))
 
     if document is None:
         clear_tmp()
-        with open(filepath, 'r') as js_file:
-            json_data = json.load(js_file)
-
         document = Document(filepath)
-        document.split_input_json_data(json_data, multiprocessing=use_multiprocessing)
 
+    document.split_input_json_data(use_multiprocessing=use_multiprocessing)
     document.set_criteria(time_range, p1, p2)
-    document.update_routes_with_entries_exists_info(multiprocessing=use_multiprocessing)
-    document.get_results(multiprocessing=use_multiprocessing)
+    document.update_jsons_and_get_results(use_multiprocessing=use_multiprocessing)
 
     return document
 
@@ -53,4 +48,4 @@ if __name__ == "__main__":
                   't1': sys.argv[7], 't2': sys.argv[8]
                   }  # (835, 940), (840, 950), (250, 350)
 
-        process_data(Filepath, Params, Use_multiprocessing)
+        process_data(Params, Use_multiprocessing, filepath=Filepath)

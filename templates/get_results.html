@@ -11,7 +11,7 @@
       </div>
       <div class="MainApp">
         <div class="LeftSide">
-           <input type="button" class="NavL" onclick="location.href='http://localhost:5000/'" value="Go back"/>
+           <input type="button" class="NavL" onclick="location.href='http://localhost:5000/'" value="Main menu"/>
            <input type="button" class="NavL" onclick="location.href='http://localhost:5000/uploader'" value="Choose JSON"/>
             <input type="button" class="NavL" onclick="location.href='http://localhost:5000/list_routes'" value="List routes"/>
            <input type="button" class="NavL" onclick="location.href='http://localhost:5000/set_params'" value="Set Parameters"/>
@@ -19,7 +19,7 @@
       </div>
       <div class="MainContent">
         <h2>RESULTS</h2>
-          <table>
+          <table border=1>
               {% for line in result %}
                 <tr>
                 {% for el in line %}
