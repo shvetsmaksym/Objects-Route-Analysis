@@ -6,6 +6,7 @@ from werkzeug.utils import secure_filename
 
 from DataStructures import Document
 from ProcessDocument import clear_tmp, process_data
+from logger import log
 
 app = Flask(__name__)
 
@@ -17,30 +18,34 @@ document = None
 
 @app.route('/')
 def main():
+    global filepath, params, use_multiprocessing
     filename = os.path.basename(filepath) if filepath else None
-    return render_template('main.html', filepath=filename, params=params)
+    return render_template('main.html', filepath=filename, params=params, proc=use_multiprocessing)
 
 
 @app.route('/uploader', methods=['GET', 'POST'])
 def uploader():
     global filepath
+    f_name = None
     if request.method == 'POST':
         f = request.files['json_file']
         fp = secure_filename(f.filename)
         filepath = os.path.abspath(fp)
-    return render_template('upload_file.html', filepath=filepath)
+        f_name = os.path.basename(filepath)
+    return render_template('upload_file.html', f_name=f_name)
 
 
 @app.route('/list_routes', methods=['GET', 'POST'])
 def list_routes():
     global document, filepath, use_multiprocessing
-
+    if filepath is None:
+        return render_template('list_routes.html', result=[["No json file chosen."]])
     if document is None or document.filepath != filepath:
         clear_tmp()
-        with open(filepath, 'r') as js_file:
-            json_data = json.load(js_file)
         document = Document(filepath)
-        document.split_input_json_data(json_data, multiprocessing=use_multiprocessing)
+        proc = os.path.getsize(filepath) > 1e7 or use_multiprocessing
+        log(f"Use multiprocessing: {proc}")
+        document.split_input_json_data(use_multiprocessing=proc)
 
     with open(document.map_jsons_path, 'r') as csv_file:
         map_files = list(csv.reader(csv_file, delimiter=";"))
@@ -54,22 +59,27 @@ def set_parameters():
     if request.method == 'POST':
         params.update({k: v for k, v in request.form.items() if k in ['x1', 'y1', 'x2', 'y2', 't1', 't2']})
         use_multiprocessing = 'multiprocessing' in request.form.keys() and request.form['multiprocessing'] == 'on'
+        log(f"Multiprocessing mode was changed to: {use_multiprocessing}")
     return render_template('set_params.html', x1=params['x1'], y1=params['y1'],
                            x2=params['x2'], y2=params['y2'],
-                           t1=params['t1'], t2=params['t2'])
+                           t1=params['t1'], t2=params['t2'],
+                           proc=use_multiprocessing)
 
 
 @app.route('/get_results', methods=['GET', 'POST'])
 def get_results():
     global document, filepath, params, use_multiprocessing
+
+    if filepath is None:
+        return render_template('get_results.html', result=[["No json file chosen."]])
     if request.method == 'POST':
         if document is None or document.filepath != filepath:
             document = process_data(params, use_multiprocessing, filepath=filepath)
         else:
             document = process_data(params, use_multiprocessing, document=document)
 
-        with open(document.result_path, 'r') as res_file:
-            res = res_file.read()
+        with open(document.result_path, 'r') as txt_file:
+            res = list(csv.reader(txt_file, delimiter=";"))
         return render_template('get_results.html', result=res)
 
 

@@ -20,6 +20,7 @@ def timer_func(func):
         t1 = time()
         result = func(*args, **kwargs)
         t2 = time()
-        log(f'Function {func.__name__!r} executed in {(t2-t1):.4f} seconds.')
+        if t2 - t1 > 1e-5:
+            log(f'Function {func.__name__!r} executed in {(t2-t1):.4f} seconds.')
         return result
     return wrap_func
