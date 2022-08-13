@@ -10,6 +10,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\temp\paths3\map_jsons_path.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
       </map>
     </option>
   </component>

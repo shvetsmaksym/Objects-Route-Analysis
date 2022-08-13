@@ -2,13 +2,12 @@
 <html lang="en">
 
 <head>
-   <title>My HTML Document</title>
    <link rel="stylesheet" href="{{url_for('.static', filename='css/style.css')}}">
 </head>
 
 <body>
    <div class="header">
-      <h1>Application for your routes analysis</h1>
+      <h1>Routes Analyser</h1>
    </div>
    <div class="MainApp">
       <div class="LeftSide">
@@ -22,22 +21,27 @@
          </form>
       </div>
       <div class="MainContent">
+         <h2>Parameters</h2>
          <table border=1>
             <tr>
-               <th>Filename</th>
-               <th> {{ filepath }} </th>
+               <td>Filename</td>
+               <td> {{ filepath }} </td>
             </tr>
          {% for key, value in params.items() %}
             <tr>
-               <th width="50"> {{ key }} </th>
-               <th width="80" align="right"> {{ value }} </th>
+               <td width="50"> {{ key }} </td>
+               <td width="80" align="right"> {{ value }} </td>
             </tr>
          {% endfor %}
             <tr>
-               <th>Multiprocessing</th>
-               <th>{{ proc }}</th>
+               <td>Multiprocessing</td>
+               <td>{{ proc }}</td>
             </tr>
          </table>
+      </div>
+      <div class="RightSide">
+         <h2>Routes on Map</h2>
+         <img id="RoutesImg" src="{{ url_for('static', filename='routes.png') }}"/>
       </div>
    </div>
 </body>

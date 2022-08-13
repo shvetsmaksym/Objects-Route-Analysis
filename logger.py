@@ -1,8 +1,8 @@
 from datetime import datetime
 import os
 from time import time
+from Constants import LOG_DIR
 
-LOG_DIR = 'logs'
 LOG_PATH = log_path = os.path.join(LOG_DIR, f"{datetime.now().year}_{datetime.now().month}_{datetime.now().day}.log")
 
 
@@ -21,6 +21,10 @@ def timer_func(func):
         result = func(*args, **kwargs)
         t2 = time()
         if t2 - t1 > 1e-5:
-            log(f'Function {func.__name__!r} executed in {(t2-t1):.4f} seconds.')
+            if 'use_multiprocessing' in kwargs.keys():
+                log(f"Function {func.__name__!r} executed in {(t2-t1):.4f} seconds; "
+                    f"multiprocessing: {kwargs['use_multiprocessing']}")
+            else:
+                log(f"Function {func.__name__!r} executed in {(t2 - t1):.4f} seconds.")
         return result
     return wrap_func

@@ -7,7 +7,7 @@
 </head>
 <body>
     <div class="header">
-            <h1>Application for your routes analysis</h1>
+            <h1>Routes Analyser</h1>
       </div>
       <div class="MainApp">
         <div class="LeftSide">
@@ -20,17 +20,32 @@
                 <input type = "submit" class="NavL" value="Process JSON File"/>
             </form>
         </div>
-      </div>
-      <div class="MainContent">
-        <table border=1>
-            {% for line in result %}
-            <tr>
-                {% for el in line %}
-                    <th>{{ el }}</th>
+        <form action="http://localhost:5000/list_routes" method = "POST"
+            enctype = "multipart/form-data">
+        <div class="MainContent">
+            <input type="submit" name="submit_routes" value="Show routes"/>
+            <table border=1>
+                <tr>
+                    <th>Object</th>
+                    <th>Path</th>
+                    <th>Filename</th>
+                    <th>Plot</th>
+                </tr>
+                {% for line in result[1:] %}
+                <tr>
+                    {% for el in line %}
+                        <td><small>{{ el }}</small></td>
+                    {% endfor %}
+                    <td><input type="checkbox" name="{{ line[2] }}"></td>
+                </tr>
                 {% endfor %}
-            </tr>
-            {% endfor %}
-        </table>
+            </table>
+        </div>
+        </form>
+        <div class="RightSide">
+            <h2>Routes on Map</h2>
+            <img id="RoutesImg" src="{{ url_for('static', filename='routes.png') }}"/>
+        </div>
       </div>
 </body>
 </html>

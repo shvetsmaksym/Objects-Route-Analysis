@@ -1,11 +1,12 @@
 import os
-import json
 import csv
+from PIL import Image
 from flask import Flask, render_template, request
 from werkzeug.utils import secure_filename
 
 from DataStructures import Document
 from ProcessDocument import clear_tmp, process_data
+from Constants import PLOT_PATH_STATIC
 from logger import log
 
 app = Flask(__name__)
@@ -43,14 +44,22 @@ def list_routes():
     if document is None or document.filepath != filepath:
         clear_tmp()
         document = Document(filepath)
+        create_empty_img()
+
+        # At this stage we assume, that user may not set parameter 'use multiprocessing' yet.
+        # Therefore, the program decides whether to use multiprocessing or not based on the size of input file.
         proc = os.path.getsize(filepath) > 1e7 or use_multiprocessing
-        log(f"Use multiprocessing: {proc}")
         document.split_input_json_data(use_multiprocessing=proc)
 
     with open(document.map_jsons_path, 'r') as csv_file:
         map_files = list(csv.reader(csv_file, delimiter=";"))
 
-    return render_template('list_routes.html', result=map_files)
+    if request.method == 'POST':
+        routes_list = [k for k, v in request.form.items() if k.endswith(".json") and v == "on"]
+        document.plot_routes(routes_list=routes_list, to_static_dir=True)
+        return render_template('list_routes.html', result=map_files, routes_img_src=PLOT_PATH_STATIC)
+
+    return render_template('list_routes.html', result=map_files, routes_img_src="None")
 
 
 @app.route('/set_params', methods=['GET', 'POST'])
@@ -75,6 +84,7 @@ def get_results():
     if request.method == 'POST':
         if document is None or document.filepath != filepath:
             document = process_data(params, use_multiprocessing, filepath=filepath)
+            create_empty_img()
         else:
             document = process_data(params, use_multiprocessing, document=document)
 
@@ -83,5 +93,16 @@ def get_results():
         return render_template('get_results.html', result=res)
 
 
+def create_empty_img():
+    img = Image.new(mode='RGB', size=(640, 480), color=(255, 255, 255))
+    img.save(PLOT_PATH_STATIC)
+    img.close()
+
+
 if __name__ == '__main__':
+    create_empty_img()  # css/routes.png
+
     app.run(debug=True)
+
+    if os.path.exists(PLOT_PATH_STATIC):
+        os.remove(PLOT_PATH_STATIC)

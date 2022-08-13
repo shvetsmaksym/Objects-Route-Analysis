@@ -1,14 +1,17 @@
 import multiprocessing as mp
 import os
+import time
 import re
 import json
 import csv
 import pandas as pd
 import numpy as np
-from random import random
-from itertools import combinations
-import matplotlib.pyplot as plt
+from random import random, sample
 from tqdm import tqdm
+import matplotlib.pyplot as plt
+
+plt.switch_backend('agg')  # To avoid RunTimeError
+# https://stackoverflow.com/questions/52839758/matplotlib-and-runtimeerror-main-thread-is-not-in-main-loop
 
 from logger import timer_func, log
 from Constants import *
@@ -46,9 +49,9 @@ class Document:
             os.mkdir(self.split_js_path)
         log(f"--- New document {self.doc_path}")
 
-    def set_criteria(self, time_range, p1, p2):
+    def set_parameters(self, time_range, p1, p2):
         """
-        Method used to set criteria such as time range and rectangle area to looking for when analysing object's route.
+        Method used to set parameters such as time range and rectangle area.
         :param time_range: float >= 0
         :param p1: (x1, y1) - bottom left point of rectangle area
         :param p2: (x2, y2) - top right point of rectangle area
@@ -77,7 +80,7 @@ class Document:
                 with mp.Pool(processes=mp.cpu_count()) as p:
                     p.map(self.save_to_json, json_data)
             else:
-                for record in tqdm(json_data):
+                for record in tqdm(json_data, desc="Splitting input json", total=len(json_data)):
                     self.save_to_json(record)
 
             # TODO: try to implement processes for below block of code.
@@ -96,8 +99,12 @@ class Document:
             json_formatted = json.dumps(record, ensure_ascii=True)
             file.write(json_formatted)
 
-    # -------------------------------
+    # ---- UPDATE SPLIT JSON FILES ----
     def update_jsons_and_get_results(self, use_multiprocessing=False):
+        """Method is used when we need to update all split json files without splitting input json again.
+        Eg. User get the results for a given input json and some set of parameters.
+        Then he/she wants to set new values of parameters and get the results for the same input json."""
+
         if self.obtained_routes and not self.processed_doc:
             with open(self.result_path, 'w') as f:
                 f.write("Id Object;Id Path;Entries and exits\n")
@@ -115,12 +122,12 @@ class Document:
         Method goes through each route and looking for enters and exits from the rectangle area and remove it.
         :param use_multiprocessing: True / False
         """
-        paths = iter([os.path.join(self.split_js_path, fname) for fname in os.listdir(self.split_js_path)])
+        paths = [os.path.join(self.split_js_path, fname) for fname in os.listdir(self.split_js_path)]
         if use_multiprocessing:
             with mp.Pool(processes=mp.cpu_count()) as p:
                 p.map(Document.remove_entries_exits_data_from_json, paths)
         else:
-            for p in tqdm(paths):
+            for p in tqdm(paths, desc="Clearing split jsons form entries and exits data", total=len(paths)):
                 Document.remove_entries_exits_data_from_json(p)
 
     @staticmethod
@@ -141,12 +148,12 @@ class Document:
         :param use_multiprocessing: True / False
         """
         if not self.updated_ee_data:
-            paths = iter([os.path.join(self.split_js_path, fname) for fname in os.listdir(self.split_js_path)])
+            paths = [os.path.join(self.split_js_path, fname) for fname in os.listdir(self.split_js_path)]
             if use_multiprocessing:
                 with mp.Pool(processes=mp.cpu_count()) as p:
                     p.map(self.check_for_entries_and_exits, paths)
             else:
-                for p in tqdm(paths):
+                for p in tqdm(paths, desc="Update split jsons with entries and exists data", total=len(paths)):
                     self.check_for_entries_and_exits(p)
 
             self.is_ee_data = True
@@ -199,10 +206,10 @@ class Document:
         Method looks for every json in split jsons, collect information about entries and exits, and write it to self.result_path
         :param use_multiprocessing: True / False
         """
-        paths = iter([os.path.join(self.split_js_path, fname) for fname in os.listdir(self.split_js_path)])
+        paths = [os.path.join(self.split_js_path, fname) for fname in os.listdir(self.split_js_path)]
 
         if not use_multiprocessing:
-            for path in tqdm(paths):
+            for path in tqdm(paths, desc="Getting results", total=len(paths)):
                 with open(path, 'r') as file:
                     route_data = json.load(file)
                 if 'EntriesExits' in route_data:
@@ -276,16 +283,27 @@ class Document:
         return np.array([(x1, y1, t1) for x1, y1, t1 in zip(x, y, t)])
 
     @timer_func
-    def plot_routes(self):
-        if len(os.listdir(self.split_js_path)) > 30:
-            list_paths = combinations(os.listdir(self.split_js_path), 30)
-        else:
-            list_paths = os.listdir(self.split_js_path)
+    def plot_routes(self, routes_list=None, to_static_dir=False):
+        """ Plot routes pointed by user or random
+        :param routes_list: list of routes' filenames user wants to plot
+        """
+        if not routes_list:
+            if len(os.listdir(self.split_js_path)) == 0:
+                print("No routes found.")
+                return
+            elif len(os.listdir(self.split_js_path)) > MAX_NUMBER_OF_ROUTES_TO_PLOT:
+                routes_list = sample(os.listdir(self.split_js_path), MAX_NUMBER_OF_ROUTES_TO_PLOT)
+            else:
+                routes_list = os.listdir(self.split_js_path)
 
-        for route in list_paths:
+        for route in routes_list:
             self.plot_one_route(route)
 
         plt.savefig(self.plot_path)
+        if to_static_dir:
+            plt.savefig(PLOT_PATH_STATIC)
+        plt.close()
+        time.sleep(0.1)
 
     def plot_one_route(self, route_path):
         with open(os.path.join(self.split_js_path, route_path), 'r') as file:

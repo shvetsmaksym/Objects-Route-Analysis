@@ -1,9 +1,8 @@
 import os
 import shutil
-import json
 import sys
 
-from logger import log, timer_func
+from logger import timer_func
 from DataStructures import *
 from Constants import TMP_PATH
 
@@ -27,7 +26,7 @@ def process_data(params, use_multiprocessing, filepath=None, document=None):
         document = Document(filepath)
 
     document.split_input_json_data(use_multiprocessing=use_multiprocessing)
-    document.set_criteria(time_range, p1, p2)
+    document.set_parameters(time_range, p1, p2)
     document.update_jsons_and_get_results(use_multiprocessing=use_multiprocessing)
 
     return document
@@ -40,13 +39,17 @@ if __name__ == "__main__":
               't1, t2 - time range.')
         print('\nOptions:')
         print('\nM - multiprocessing mode')
+        print('\nD - draw routes (up to 30)')
     else:
         Filepath = sys.argv[2]
         Use_multiprocessing = 'M' in sys.argv[1]
+        Draw_routes = 'D' in sys.argv[1]
         Params = {'x1': sys.argv[3], 'y1': sys.argv[4],
                   'x2': sys.argv[5], 'y2': sys.argv[6],
                   't1': sys.argv[7], 't2': sys.argv[8]
                   }  # (835, 940), (840, 950), (250, 350)
 
         doc = process_data(Params, Use_multiprocessing, filepath=Filepath)
-        # doc.plot_routes()
+
+        if Draw_routes:
+            doc.plot_routes()
