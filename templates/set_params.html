@@ -9,7 +9,7 @@
 
 <body>
   <div class="header">
-        <h1>Application for your routes analysis</h1>
+        <h1>Routes Analyser</h1>
   </div>
   <div class="MainApp">
     <div class="LeftSide">
@@ -22,28 +22,27 @@
                 <input type = "submit" class="NavL" value="Process JSON File"/>
         </form>
     </div>
-  </div>
-  <div class="MainContent">
+    <div class="MainContent">
     <form action="http://localhost:5000/set_params" method = "POST"
                 enctype = "multipart/form-data">
         <table border=1>
             <tr>
-                <th width=50>x1</th>
-                <th><input type="number" step="0.01" name="x1" value="{{ x1 }}"/></th>
-                <th width=50>y1</th>
-                <th><input type="number" step="0.01" name="y1" value="{{ y1 }}"/></th>
+                <td width=50>x1</td>
+                <td><input type="number" step="0.01" name="x1" value="{{ x1 }}"/></td>
+                <td width=50>y1</td>
+                <td><input type="number" step="0.01" name="y1" value="{{ y1 }}"/></td>
             </tr>
             <tr>
-                <th>x2</th>
-                <th><input type="number" step="0.01" name="x2" value="{{ x2 }}" /></th>
-                <th>y2</th>
-                <th><input type="number" step="0.01" name="y2" value="{{ y2 }}" /></th>
+                <td>x2</td>
+                <td><input type="number" step="0.01" name="x2" value="{{ x2 }}" /></td>
+                <td>y2</td>
+                <td><input type="number" step="0.01" name="y2" value="{{ y2 }}" /></td>
             </tr>
             <tr>
-                <th>t1</th>
-                <th><input type="number" step="0.01" name="t1" value="{{ t1 }}" /></th>
-                <th>t2</th>
-                <th><input type="number" step="0.01" name="t2" value="{{ t2 }}" /></th>
+                <td>t1</td>
+                <td><input type="number" step="0.01" name="t1" value="{{ t1 }}" /></td>
+                <td>t2</td>
+                <td><input type="number" step="0.01" name="t2" value="{{ t2 }}" /></td>
             </tr>
             <tr>
                 <td colspan="2">Use multiprocessing?</td>
@@ -52,6 +51,11 @@
         </table>
         <input type="submit" name="submit_params" value="Submit"/>
     </form>
+    </div>
+    <div class="RightSide">
+        <h2>Routes on Map</h2>
+      <img id="RoutesImg" src="{{ url_for('static', filename='routes.png') }}"/>
+    </div>
   </div>
 </body>
 </html>

@@ -1,8 +1,15 @@
-body {background-color: #ffecb3;}
+body {background-image: linear-gradient(to bottom right, #fff8e6, #ffdd80, #fff8e6);}
 
 h1 {
-  color: #ffbf00;
-  text-shadow: 1px 1px 2px black, 0 0 25px #b38600, 0 0 5px white;
+  color: #e6a800;
+  text-shadow: 1px 1px 2px black, 0 0 5px #b38600, 0 0 5px white;
+}
+
+h2 {
+  color: #e6a800;
+  text-align: center;
+  font-weight: bold;
+  text-shadow: 1px 1px 2px black, 0 0 5px white, 0 0 5px white;
 }
 
 th, td {
@@ -22,6 +29,7 @@ tr:hover {background-color: #ffd24d;}
     left: 20px;
     width: 15%;
     font-size: 16px;
+    padding: 2px 2px;
     background-color: #ffd24d;
 
     }
@@ -29,11 +37,23 @@ tr:hover {background-color: #ffd24d;}
 .MainContent {
 
     margin-top: 10px;
-    margin-left: 10px;
+    margin-left: 20px;
     float: left;
-    width: 70%;
-    padding: 28px 28px;
-    background-color: #fff2cc;
+    max-width: 70%;
+    padding: 8px 28px;
+    background-image: linear-gradient(to bottom right, #fff8e6, #ffdd80, #fff8e6);
+    align-content: center;
+}
+
+.RightSide {
+
+    margin-top: 10px;
+    margin-left: 20px;
+    float: left;
+    max-width: 70%;
+    padding: 8px 28px;
+    background-image: linear-gradient(to bottom right, #fff8e6, #ffdd80, #fff8e6);
+    align-content: center;
 }
 
 .header {
@@ -46,7 +66,7 @@ tr:hover {background-color: #ffd24d;}
 .NavL {
 
     width: 100%;
-    background-color: #ffd24d;
+    background-image: linear-gradient(to bottom right, #ffd666, #e6a800, #ffd666);
     color: white;
     padding: 14px 28px;
     font-size: 16px;
@@ -58,7 +78,8 @@ tr:hover {background-color: #ffd24d;}
 .NavL:hover {
 
     border: 2px outset;
-    color: #ffbf00;
-    text-shadow: 1px 1px 2px black, 0 0 25px #b38600, 0 0 5px white;
+    color: #e6ac00;
+    text-shadow: 1px 1px 2px black, 0 0 25px #ffbf00, 0 0 5px white;
 }
+
 

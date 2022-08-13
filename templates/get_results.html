@@ -7,28 +7,33 @@
 
 <body>
     <div class="header">
-            <h1>Application for your routes analysis</h1>
+            <h1>Routes Analyser</h1>
       </div>
-      <div class="MainApp">
-        <div class="LeftSide">
+    <div class="MainApp">
+      <div class="LeftSide">
            <input type="button" class="NavL" onclick="location.href='http://localhost:5000/'" value="Main menu"/>
            <input type="button" class="NavL" onclick="location.href='http://localhost:5000/uploader'" value="Choose JSON"/>
             <input type="button" class="NavL" onclick="location.href='http://localhost:5000/list_routes'" value="List routes"/>
            <input type="button" class="NavL" onclick="location.href='http://localhost:5000/set_params'" value="Set Parameters"/>
         </div>
-      </div>
       <div class="MainContent">
         <h2>RESULTS</h2>
           <table border=1>
-              {% for line in result %}
+               <tr>
+                    <th>ID Object</th>
+                    <th>ID Path</th>
+                    <th>Entries and exits data</th>
+               </tr>
+              {% for line in result[1:] %}
                 <tr>
                 {% for el in line %}
-                    <th>{{ el }}</th>
+                    <td>{{ el }}</td>
                 {% endfor %}
                 </tr>
             {% endfor %}
           </table>
 
       </div>
+    </div>
 </body>
 </html>
