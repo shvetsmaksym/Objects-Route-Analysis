@@ -1,5 +1,5 @@
 *.json
 *.log
 
-/temp
-__pychache__/
+temp/
+__pycache__/
